@@ -26,3 +26,38 @@ $ python setup.py install
 $ python -c "import django; print(django.__path__)"
 ```
 2. Django的模型、模板和视图函数
+**一个简单的web网页**
+首先创建一个Django项目
+```
+$ django-admin.py startproject mysite
+```
+在目录下会创建一个mysite的目录，目录的结构
+
+├── manage.py
+└── mysite
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py
+*<code>manage.py</code>是用来管理Django项目的带有参数的命令管理器，你可以输入
+```
+$ python manage.py help
+```
+来获得它的所有用法。
+*<code>__init__.py</code>用来告诉Python这是一个Python包。
+*<code>settings.py</code>用来设置Django项目的各项参数。
+*<code>urls.py</code>将相应的URL映射到相应的视图函数上。
+*<code>wsgi.py</code>是一个将Django项目挂载到WEB服务器上的工具的脚本。如何安装和使用可以参考[WSGI](http://wsgi.readthedocs.org/en/latest/)的官网。
+在项目中创建一个名为polls的app
+```
+$ python manage.py startapp polls
+```
+polls的目录结构
+├── admin.py
+├── __init__.py
+├── migrations
+│   └── __init__.py
+├── models.py
+├── tests.py
+└── views.py
+
