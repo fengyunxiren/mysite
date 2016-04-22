@@ -1,0 +1,28 @@
+#Django总结
+***
+1. Django 简介
+Django 是一个高质量的WEB框架，它提供一套程序框架，让我们更专注与WEB视图与模型开发，提高WEB开发效率，节省时间。
+**Django的的设计模式**
+Django的设计模式为MVC模式，M即Model，为网页的数据存取部分，由Django的数据库层调用指定的数据库，存取和修改数据，Django支持四种数据库引擎，PostgreSQL、MySQL、SQLite和Oracle。要调用数据库需要修改Django创建的工程的settings.py里的内容。V即View，控制着数据显示的内容及显示的方法，在Django中由视图函数和模板处理，视图函数是一个python函数，接收一个包含WEB网页请求信息的对象，并返回一个可以在WEB网页中显示的对象,视图函数处理和渲染模板。模板是个文档，通常用来产生HTML格式内容，模板控制着数据的显示形式，是WEB浏览者能直观感受到的部分。C为Control，即控制器，控制着WEB浏览者输入的URL和视图函数之间的映射，Django框架自行处理了这部分的大多数内容，需要由开发者做的只有提供映射表。开发者最需要关心的部分是模型、视图函数和模板。
+Django遵循着松散耦合的原则，每一部分之间的关联性不强，修改一部分时不影响到其它的部分，这是一种设计原则，开发者在用Django开发web时也应当遵循这样的原则，这样开发出来的的网页代码清晰，可维护性高，每个开发者可以只专注与自己开发的模块，而不用关心其它部分的内容和结构，能够提高开发效率。
+**Django安装**
+Django由Python编写，因此安装Django需要Python环境，一般类Unix系统都装有Python，Django已经支持Python3，Django目前最新的版本为1.9.5，Django提供了长期支持版本1.8.12，支持到2018年4月以后，并不再更新和修复1.8版本以前的版本，因此，在使用Django时最好选用1.8及以后的版本，Django的一个长期支持版本为1.11版。
+从[官网](https://www.djangoproject.com/)可以下载到Django的各种版本，下载后。解压，进入目录运行命令
+```
+$ sudo python setup.py install 
+```
+即可安装成功。
+在安装时，要确保没有安装其它版本的Django，如果安装了，请卸载。卸载方法：
+如果你用pip安装，可以直接用pip卸载
+```
+$ pip uninstall Django
+```
+如果是使用
+```
+$ python setup.py install 
+```
+安装，直接在python的库里找到Django的文件夹，并删除，可以由以下方法找到Django的文件夹
+```
+$ python -c "import django; print(django.__path__)"
+```
+2. Django的模型、模板和视图函数
