@@ -191,8 +191,204 @@ $ sudo a2ensite mysite.conf
 $ sudo service apache2 reload
 ```
 一般情况下，Django便已经部署好了，如果遇到无法正常打开网页的情况，可以参看<code>apache</code>的<code>err.log</code>,该文件在<code>/var/log/apache2</code>目录下。
+#Django总结
+***
+##Django 简介
+Django 是一个高质量的WEB框架，它提供一套程序框架，让我们更专注与WEB视图与模型开发，提高WEB开发效率，节省时间。
+**Django的的设计模式**
+Django的设计模式为MVC模式，M即Model，为网页的数据存取部分，由Django的数据库层调用指定的数据库，存取和修改数据，Django支持四种数据库引擎，PostgreSQL、MySQL、SQLite和Oracle。要调用数据库需要修改Django创建的工程的settings.py里的内容。V即View，控制着数据显示的内容及显示的方法，在Django中由视图函数和模板处理，视图函数是一个python函数，接收一个包含WEB网页请求信息的对象，并返回一个可以在WEB网页中显示的对象,视图函数处理和渲染模板。模板是个文档，通常用来产生HTML格式内容，模板控制着数据的显示形式，是WEB浏览者能直观感受到的部分。C为Control，即控制器，控制着WEB浏览者输入的URL和视图函数之间的映射，Django框架自行处理了这部分的大多数内容，需要由开发者做的只有提供映射表。开发者最需要关心的部分是模型、视图函数和模板。
+Django遵循着松散耦合的原则，每一部分之间的关联性不强，修改一部分时不影响到其它的部分，这是一种设计原则，开发者在用Django开发web时也应当遵循这样的原则，这样开发出来的的网页代码清晰，可维护性高，每个开发者可以只专注与自己开发的模块，而不用关心其它部分的内容和结构，能够提高开发效率。
+**Django安装**
+Django由Python编写，因此安装Django需要Python环境，一般类Unix系统都装有Python，Django已经支持Python3，Django目前最新的版本为1.9.5，Django提供了长期支持版本1.8.12，支持到2018年4月以后，并不再更新和修复1.8版本以前的版本，因此，在使用Django时最好选用1.8及以后的版本，Django的一个长期支持版本为1.11版。
+从[官网](https://www.djangoproject.com/)可以下载到Django的各种版本，下载后。解压，进入目录运行命令
+```
+$ sudo python setup.py install 
+```
+即可安装成功。
+在安装时，要确保没有安装其它版本的Django，如果安装了，请卸载。卸载方法：
+如果你用pip安装，可以直接用pip卸载
+```
+$ pip uninstall Django
+```
+如果是使用
+```
+$ python setup.py install 
+```
+安装，直接在python的库里找到Django的文件夹，并删除，可以由以下方法找到Django的文件夹
+```
+$ python -c "import django; print(django.__path__)"
+```
+##Django的模型、模板和视图函数
+###一个简单的web网页
+**首先创建一个Django项目**
+```
+$ django-admin.py startproject mysite
+```
+在目录下会创建一个mysite的目录，目录的结构
+```
+├── manage.py
+└── mysite
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    └── wsgi.py
+```
+<code>manage.py</code>是用来管理Django项目的带有参数的命令管理器，你可以输入
+```
+$ python manage.py help
+```
+来获得它的所有用法。
+<code>\_\_init\_\_.py</code>用来告诉Python这是一个Python包。
+<code>settings.py</code>用来设置Django项目的各项参数。
+<code>urls.py</code>将相应的URL映射到相应的视图函数上。
+<code>wsgi.py</code>是一个将Django项目挂载到WEB服务器上的工具的脚本。如何安装和使用可以参考[WSGI](http://wsgi.readthedocs.org/en/latest/)的官网。
+**在项目中创建一个名为polls的app**
+```
+$ python manage.py startapp polls
+```
+polls的目录结构
+```
+├── admin.py
+├── __init__.py
+├── migrations
+│   └── __init__.py
+├── models.py
+├── tests.py
+└── views.py
+```
+project和app的区别：
+app是一个具体的网页应用，而工程包含许多个app，构成一个站点。
+在<code>mysite/settings.py</code>修改，让Django知道app的存在
+```
+# Application definition
+
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'polls',                     #添加项
+)
+```
+**修改视图**
+```
+from django.http import HttpResponse
+
+# Create your views here.
+def index(request):
+    return HttpResponse("Hello,world. You're at the polls indes.")
+```
+视图函数接受一个Httprequest对象，里面包含网页请求的各种信息，返回一个Httpresponse对象，里面包含在网页端显示的内容。
+**配置URLconf**
+在polls文件里新建url.py，如下配置
+```
+from django.conf.urls import url
+from polls import views
+urlpatterns=[
+        url(r'^$',views.index,name='index'),
+        ]
+```
+在mysite文件夹下的url.py里如下配置
+```
+from django.conf.urls import include, url
+from django.contrib import admin
+
+
+urlpatterns = [
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^polls/',include('polls.urls')),    #添加项
+]
+```
+在配置mysite目录下的url时，<code>include</code>里接受的参数是一个字符串，而不是一个模块。url的第一个参数为加入了正则表达式的字符串，正则表达式的具体语法参见[RUNOOB.COM](http://www.runoob.com/regexp/regexp-syntax.html)。
+**挂载网页**
+运行
+```
+$ python manage.py runserver
+```
+打开网页输入*127.0.0.1:8000/polls*,便可看到一个简单的网页。
+>当你在网页端输入地址时，Django会根据mysite目录下的<code>settings.py</code>里的配置找到URLconf，再根据其中的配置匹配对应的视图函数，然后调用视图函数，视图函数返回一个Httpresponse对象，Django将期转换为网页并显示在浏览器中
+###使用模型
+在polls/models.py输入
+```
+from django.db import models
+
+# Create your models here.
+class Question(models.Model):
+    question_text=models.CharField(max_length=200)
+    pub_date=models.DateTimeField('date published')
+
+    def __unicode__(self):
+        return self.question_text
+```
+运行
+```
+$ python manage.py makemigrations
+```
+再运行
+```
+$ python manage.py makemigrations
+```
+在数据库里创建该模型。
+在<code>polls/views.py</code>里修改视图函数
+```
+from django.http import HttpResponse
+from polls.models import Question
+# Create your views here.
+def index(request):
+    lastest_question_list =Question.objects.order_by('-pub_date')[:5]
+    output =','.join([p.question_text for p in lastest_question_list])
+    return HttpResponse(output)
+```
+此时挂载网页再刷新,网页一片空白，证明我们已经能够正确调用模型了，空白是因为数据库里面并没有写入数据。管理数据库可以使用admin详情参见[Django Documentation](https://docs.djangoproject.com/en/1.8/intro/tutorial02/)。
+###使用模板
+在poll目录下创建文件夹templates
+在templates目录下创建文件<code>index.html</code>
+```
+html>
+<head>
+        <title>Hello,everyone</title>
+</head>
+<body>
+        <p>It is now {{ current_date }}.</p>
+</body>
+</html>
+```
+修改视图函数
+```
+
+m django.shortcuts import render_to_response
+import datetime
+# Create your views here.
+def index(request):
+    now=datetime.datetime.now()
+    return render_to_response('index.html',{'current_date':now})
+```
+刷新网页，便在网页上显示了当前的日期和时间。由于时区问题，显示的时间与本地时间不符，可以在<code>settings.py</code>中修改时区。
 ###表单
 视图函数可以通过Httprequest对象获取网页中表单的信息，应该对request对象的信息进行检测，以防发生异常导致站点崩溃。通过表单获取用户提交的内容，由视图函数根据用户的请求从数据库存取或者修改数据，再将结果由模板呈现给用户。
+##用Apache和WSGI部署Django
+首先确保[Apache](http://www.apache.org/)和[mod_wsgi](http://modwsgi.readthedocs.org/en/develop/user-guides/quick-installation-guide.html)已经安装好。
+然后在<code>/etc/apache2/site-available</code>新建文件<code>mysite.conf</code>写入
+```
+ServerAdmin webmaster@localhost
+DocumentRoot /home/feng/wyc/django/mysite
+
+WSGIScriptAlias / /home/feng/wyc/django/mysite/mysite/wsgi.py
+WSGIPythonPath /home/feng/wyc/django/mysite
+<Directory /home/feng/wyc/django/mysite/mysite>
+        <Files wsgi.py>
+                Require all granted
+        </Files>
+</Directory>
+```
+运行命令
+```
+$ sudo a2ensite mysite.conf
+$ sudo service apache2 reload
+```
+一般情况下，Django便已经部署好了，如果遇到无法正常打开网页的情况，可以参看<code>apache</code>的<code>err.log</code>,该文件在<code>/var/log/apache2</code>目录下。
 ##小结
-这里只介绍了Django最基本的一些功能，运用这些简单的功能便可以开发出一些简单的网页，可见Django非常容易上手，想要更详细的或者更深入一部了解Django，请参见[官方教程](https://docs.djangoproject.com/en/1.8/)或者[Django Book 中文版](http://docs.30c.org/djangobook2/index.html)。
+这里只介绍了Django最基本的一些功能，运用这些简单的功能便可以开发出一些简单的网页，Django基础知识不难，想要更详细的或者更深入一部了解Django，请参见[官方教程](https://docs.djangoproject.com/en/1.8/)或者[Django Book 中文版](http://docs.30c.org/djangobook2/index.html)。
 谈一下学习Django的心得，在学习的过程中，要将参考文档的每个实例都自己敲一遍，这样可以发现在实际操作中遇到的问题，运行实例出现的问题在调试模式下网页上都由详细的错误提示，根据错误提示很容易找到问题的原因，自己解决问题，能够加深认识和印象。还有一个是在遇到问题的时候尽可能的去找官方文档或者官方说明，Django对应的每一个版本都有官方手册，基本上你所遇到的问题都可以在上面找到答案。在网上搜索到的答案一个是准确度不够，它可能是运行的版本和你的版本不一样或者其它方面有差别，另一个是网上的答案五花八门，可能你在网上找到答案的时间比你自己解决问题的时间还要长。
