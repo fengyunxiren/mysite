@@ -162,3 +162,37 @@ html>
 修改视图函数
 ```
 
+m django.shortcuts import render_to_response
+import datetime
+# Create your views here.
+def index(request):
+    now=datetime.datetime.now()
+    return render_to_response('index.html',{'current_date':now})
+```
+刷新网页，便在网页上显示了当前的日期和时间。由于时区问题，显示的时间与本地时间不符，可以在<code>settings.py</code>中修改时区。
+##用Apache和WSGI部署Django
+首先确保[Apache](http://www.apache.org/)和[mod_wsgi](http://modwsgi.readthedocs.org/en/develop/user-guides/quick-installation-guide.html)已经安装好。
+然后在<code>/etc/apache2/site-available</code>新建文件<code>mysite.conf</code>写入
+```
+ServerAdmin webmaster@localhost
+DocumentRoot /home/feng/wyc/django/mysite
+
+WSGIScriptAlias / /home/feng/wyc/django/mysite/mysite/wsgi.py
+WSGIPythonPath /home/feng/wyc/django/mysite
+<Directory /home/feng/wyc/django/mysite/mysite>
+        <Files wsgi.py>
+                Require all granted
+        </Files>
+</Directory>
+```
+运行命令
+```
+$ sudo a2ensite mysite.conf
+$ sudo service apache2 reload
+```
+一般情况下，Django便已经部署好了，如果遇到无法正常打开网页的情况，可以参看<code>apache</code>的<code>err.log</code>,该文件在<code>/var/log/apache2</code>目录下。
+###表单
+视图函数可以通过Httprequest对象获取网页中表单的信息，应该对request对象的信息进行检测，以防发生异常导致站点崩溃。通过表单获取用户提交的内容，由视图函数根据用户的请求从数据库存取或者修改数据，再将结果由模板呈现给用户。
+##小结
+这里只介绍了Django最基本的一些功能，运用这些简单的功能便可以开发出一些简单的网页，可见Django非常容易上手，想要更详细的或者更深入一部了解Django，请参见[官方教程](https://docs.djangoproject.com/en/1.8/)或者[Django Book 中文版](http://docs.30c.org/djangobook2/index.html)。
+谈一下学习Django的心得，在学习的过程中，要将参考文档的每个实例都自己敲一遍，这样可以发现在实际操作中遇到的问题，运行实例出现的问题在调试模式下网页上都由详细的错误提示，根据错误提示很容易找到问题的原因，自己解决问题，能够加深认识和印象。还有一个是在遇到问题的时候尽可能的去找官方文档或者官方说明，Django对应的每一个版本都有官方手册，基本上你所遇到的问题都可以在上面找到答案。在网上搜索到的答案一个是准确度不够，它可能是运行的版本和你的版本不一样或者其它方面有差别，另一个是网上的答案五花八门，可能你在网上找到答案的时间比你自己解决问题的时间还要长。
